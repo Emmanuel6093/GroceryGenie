@@ -5,14 +5,15 @@ const router = express.Router();
 
 // Create a new meal
 router.post("/", async (req, res) => {
-  try {
-    const meal = new Meal(req.body);
-    await meal.save();
-    res.status(201).json(meal);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+    try {
+      const meal = new Meal(req.body);
+      await meal.save();
+      res.status(201).json(meal);
+    } catch (error) {
+      res.status(400).json({ error: error.message || "Invalid meal data" });
+    }
+  });
+  
 
 // Get all meals
 router.get("/", async (req, res) => {

@@ -5,14 +5,15 @@ const router = express.Router();
 
 // Add a grocery item
 router.post("/", async (req, res) => {
-  try {
-    const item = new GroceryItem(req.body);
-    await item.save();
-    res.status(201).json(item);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+    try {
+      const item = new GroceryItem(req.body);
+      await item.save();
+      res.status(201).json(item);
+    } catch (error) {
+      res.status(400).json({ error: error.message || "Invalid grocery item data" });
+    }
+  });
+  
 
 // Get all grocery items
 router.get("/", async (req, res) => {
