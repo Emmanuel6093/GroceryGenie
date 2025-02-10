@@ -1,29 +1,30 @@
 import express from "express";
 import Meal from "../models/Meal.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Create a new meal
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
     try {
-      const meal = new Meal(req.body);
+      const meal = new Meal({ ...req.body, userId: req.user.userId });
       await meal.save();
       res.status(201).json(meal);
     } catch (error) {
-      res.status(400).json({ error: error.message || "Invalid meal data" });
+      res.status(400).json({ error: error.message });
     }
   });
   
 
 // Get all meals
-router.get("/", async (req, res) => {
-  try {
-    const meals = await Meal.find();
-    res.json(meals);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get("/", authMiddleware, async (req, res) => {
+    try {
+      const meals = await Meal.find({ userId: req.user.userId }); // Only get meals for this user
+      res.json(meals);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
 // Get a single meal
 router.get("/:id", async (req, res) => {

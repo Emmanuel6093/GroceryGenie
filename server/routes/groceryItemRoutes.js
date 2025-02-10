@@ -1,29 +1,30 @@
 import express from "express";
 import GroceryItem from "../models/GroceryItem.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Add a grocery item
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
     try {
-      const item = new GroceryItem(req.body);
+      const item = new GroceryItem({ ...req.body, userId: req.user.userId });
       await item.save();
       res.status(201).json(item);
     } catch (error) {
-      res.status(400).json({ error: error.message || "Invalid grocery item data" });
+      res.status(400).json({ error: error.message });
     }
   });
   
 
 // Get all grocery items
-router.get("/", async (req, res) => {
-  try {
-    const items = await GroceryItem.find();
-    res.json(items);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get("/", authMiddleware, async (req, res) => {
+    try {
+      const items = await GroceryItem.find({ userId: req.user.userId }); // Only return user's grocery items
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 
 // Get a single grocery item
 router.get("/:id", async (req, res) => {
